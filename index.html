@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WEB RADAR</title>
+    <style>
+        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; }
+        canvas { background: #000; border: 2px solid #444; margin-top: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .legend { margin: 10px; }
+        .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <h2>TEAM RADAR ONLINE</h2>
+    <div class="legend">
+        <span class="dot" style="background: green;"></span> Я
+        <span class="dot" style="background: orange;"></span> Тиммейт
+        <span class="dot" style="background: red;"></span> Враг
+    </div>
+    <canvas id="radarCanvas" width="600" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('radarCanvas');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const scale = 2.0; // Подберешь под свою игру (масштаб)
+
+        function updateRadar() {
+            fetch('/data')
+                .then(res => res.json())
+                .then(players => {
+                    // Очищаем экран
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Рисуем сетку
+                    ctx.strokeStyle = '#222';
+                    for(let i=0; i<600; i+=50) {
+                        ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,600); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(600,i); ctx.stroke();
+                    }
+
+                    // Рисуем игроков
+                    players.forEach(p => {
+                        // Рассчитываем позицию (относительно центра или абсолютную)
+                        const x = centerX + (p.x * scale);
+                        const z = centerY + (p.z * scale);
+                        
+                        let color = 'red';
+                        if (p.t == 0) color = '#00ff00'; // Я
+                        if (p.t == 1) color = 'orange';  // Свой
+
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.arc(x, z, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Рисуем обводку для красоты
+                        ctx.strokeStyle = 'white';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    });
+                });
+        }
+        setInterval(updateRadar, 300); // Обновляем раз в 0.3 сек
+    </script>
+</body>
+</html>

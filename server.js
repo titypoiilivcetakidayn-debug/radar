@@ -9,11 +9,16 @@ app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 let players = {}; // Храним данные по ID или типу
 
 app.post('/update', (req, res) => {
-    const { x, z, t, id } = req.body;
-    // Сохраняем каждого игрока под его личным номером (id)
-    players[id] = { x, z, t, lastUpdate: Date.now() };
+    const { players } = req.body;
+    if (players && Array.isArray(players)) {
+        players.forEach(p => {
+            // Сохраняем каждого по ID: 0-я, остальное враги/тимейты
+            allPlayers[p.id] = { x: p.x, z: p.z, t: p.t, lastUpdate: Date.now() };
+        });
+    }
     res.sendStatus(200);
 });
+
 
 
 app.get('/data', (req, res) => {

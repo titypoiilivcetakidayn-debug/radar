@@ -10,10 +10,11 @@ let players = {}; // Храним данные по ID или типу
 
 app.post('/update', (req, res) => {
     const { x, z, t, id } = req.body;
-    // t: 0-ты, 1-свой, 2-враг
-    players[id || 'local'] = { x, z, t, lastUpdate: Date.now() };
+    // Сохраняем каждого игрока под его личным номером (id)
+    players[id] = { x, z, t, lastUpdate: Date.now() };
     res.sendStatus(200);
 });
+
 
 app.get('/data', (req, res) => {
     // Удаляем тех, кто не обновлялся больше 5 секунд (вышли из игры)
